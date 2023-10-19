@@ -179,7 +179,7 @@ class flyingMonster(pygame.sprite.Sprite):
         self.x = x
         self.y = y
         self.health = 3
-        # sprite class uses alive already :')
+        self.Rect = pygame.Rect((self.x - 16), (self.y - 64), 32, 64)
         self.living = True
         self.monsterFrame = 0
 
@@ -194,7 +194,7 @@ class flyingMonster(pygame.sprite.Sprite):
         if self.monsterFrame == 2:
             self.monsterFrame = 0
 
-        self.Rect = tempImage.get_rect(midbottom = (self.x, self.y))
+        self.Rect.x -= playerObj.dx
         screen.blit(tempImage, self.Rect)
 
         # checks if player is colliding with monster or not
