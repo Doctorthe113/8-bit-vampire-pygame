@@ -33,6 +33,7 @@ class player:
         self.y = y
         self.dy = 5
         self.dx = 0
+        self.upscale = 1.5
         self.health = 20
         self.direction = 0
         self.playerIdleImage = pygame.image.load("assets/player/idle.png").\
@@ -41,8 +42,7 @@ class player:
             convert_alpha()
         self.playerHitImage = pygame.image.load("assets/player/hit.png").\
             convert_alpha()
-        self.Rect = pygame.Rect((self.x - 32), (self.y - 64), 32, 64)
-        self.mask = pygame.mask.from_surface(pygame.Surface((32, 64)))
+        self.Rect = pygame.Rect((self.x - 24), (self.y - 48), 24, 48)
         self.hitRect = None
         self.hitting = False
         self.jumping = False
@@ -54,20 +54,20 @@ class player:
     def update(self):
         # for jumping
         if self.jumping:
-            self.dy -= 10
+            self.dy -= 8
             self.jumpFrame += 1
             if self.jumpFrame == 5:
                 self.jumpFrame = 0
                 self.jumping = False
         else: 
-            self.dy = 10
+            self.dy = 8
 
 
         # for checking collisions
         collisionTiles = bgWithColisionObj.tileRects
         for tiles in collisionTiles:
             # for checking collision in y direction
-            if tiles.colliderect(self.Rect.x, (self.Rect.y + self.dy), 32, 64):
+            if tiles.colliderect(self.Rect.x, (self.Rect.y + self.dy), 24, 48):
                 # for checking jumping collision
                 if (self.dy < 0):
                     self.dy = tiles.bottom - self.Rect.top
@@ -75,7 +75,7 @@ class player:
                 elif (self.dy >= 0):
                     self.dy = tiles.top - self.Rect.bottom
 
-            if tiles.colliderect((self.Rect.x + (self.dx)), self.Rect.y, 32, 64):
+            if tiles.colliderect((self.Rect.x + self.dx), self.Rect.y, 24, 48):
                 self.dx = 0
 
 
@@ -92,7 +92,7 @@ class player:
             tempImage = pygame.Surface((16, 32)).convert_alpha()
             tempImage.fill((0, 0, 0, 0))
             tempImage.blit(self.playerIdleImage, (0, 0), ((16 * floor(self.frame)), 0, 16, 32))
-            tempImage = pygame.transform.scale(tempImage, (32, 64))
+            tempImage = pygame.transform.scale(tempImage, ((self.upscale * 16), (self.upscale * 32)))
 
             self.frame += 0.25
             if self.frame == 4:
@@ -114,7 +114,7 @@ class player:
             tempImage = pygame.Surface((16, 32)).convert_alpha()
             tempImage.fill((0, 0, 0, 0))
             tempImage.blit(self.playerRunImage, (0, 0), ((16 * floor(self.runFrame)), 0, 16, 32))
-            tempImage = pygame.transform.scale(tempImage, (32, 64))
+            tempImage = pygame.transform.scale(tempImage, ((self.upscale * 16), (self.upscale * 32)))
 
             self.runFrame += 0.125
             if self.runFrame == 4:
@@ -136,7 +136,7 @@ class player:
             tempImage = pygame.Surface((32, 32)).convert_alpha()
             tempImage.fill((0, 0, 0, 0))
             tempImage.blit(self.playerHitImage, (0, 0), ((32 * floor(self.hitFrame)), 0, 32, 32))
-            tempImage = pygame.transform.scale(tempImage, (64, 64))
+            tempImage = pygame.transform.scale(tempImage, ((self.upscale * 32), (self.upscale * 32)))
 
             self.hitFrame += 0.25
             if self.hitFrame == 2:
@@ -155,7 +155,8 @@ class player:
             self.hitRect = playerHitSprite.get_rect(topleft=((self.Rect.x), (self.Rect.y)))
             screen.blit(playerHitSprite, self.Rect)
 
-
+        print(self.jumping)
+        print(self.Rect.x, self.Rect.y)
         pygame.draw.rect(screen, (255, 255, 255), self.Rect, 2)
 
     def attacked(self):
@@ -178,6 +179,7 @@ class flyingMonster(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.x = x
         self.y = y
+        self.upscale = 1.5
         self.health = 3
         self.Rect = pygame.Rect((self.x - 16), (self.y - 64), 32, 64)
         self.living = True
@@ -188,21 +190,23 @@ class flyingMonster(pygame.sprite.Sprite):
         flyingMonsterIdle = pygame.image.load("assets/monsters/flying-monster.png").convert_alpha()
         tempImage.fill((0, 0, 0, 0))
         tempImage.blit(flyingMonsterIdle, (0, (16 * floor(self.monsterFrame))), ((16 * floor(self.monsterFrame)), 0, 16, 16))
-        tempImage = pygame.transform.scale(tempImage, (32, 64))
+        tempImage = pygame.transform.scale(tempImage, ((self.upscale * 16), (self.upscale * 32)))
+
 
         self.monsterFrame += 0.25
         if self.monsterFrame == 2:
             self.monsterFrame = 0
 
+
         self.Rect.x -= playerObj.dx
         screen.blit(tempImage, self.Rect)
 
-        # checks if player is colliding with monster or not
+
+        # for attacking player
         if self.Rect.colliderect(playerObj.Rect):
             playerObj.attacked()
         try:
-            # checks if player is colliding with player hit rect
-            # and if player is hitting or not
+            # for player attacking the monster
             if self.Rect.colliderect(playerObj.hitRect) and playerObj.hitting:
                 self.health -= 1
                 playerObj.hitting = False
@@ -241,14 +245,13 @@ class bgWithColision(pygame.sprite.Sprite):
                         pygame.Rect(273, 304, 828, 21), pygame.Rect(1036, 0, 45, 226), 
                         pygame.Rect(1079, 164, 39, 17), pygame.Rect(1163, 245, 32, 17),
                         pygame.Rect(1193, 101, 43, 194), pygame.Rect(1236, 268, 301, 27),
-                        pygame.Rect(1527, 103, 51, 188), pygame.Rect(1192, 80, 299, 26),
+                        pygame.Rect(0, 464, 3414, 16), pygame.Rect(1192, 80, 280, 26),
                         pygame.Rect(1521, 80, 62, 84), pygame.Rect(1737, 134, 402, 26),
                         pygame.Rect(1897, 429, 16, 35), pygame.Rect(1913, 400, 296, 65),
                         pygame.Rect(2208, 369, 32, 97), pygame.Rect(2566, 369, 32, 97),
                         pygame.Rect(2598, 400, 296, 65), pygame.Rect(2699, 134, 402, 26),
                         pygame.Rect(3014, 324, 32, 16), pygame.Rect(3193,  280, 32, 16),
-                        pygame.Rect(3355, 234, 32, 16), pygame.Rect(3195, 182, 32, 16),
-                        pygame.Rect(0, 464, 3414, 16)]
+                        pygame.Rect(3355, 234, 32, 16), pygame.Rect(3195, 182, 32, 16)]
 
     def update(self):
         for tiles in self.tileRects:
@@ -269,8 +272,11 @@ skyObj = sky()
 playerObj = player(320, 420)
 # loads the monster classes for monsters(group) object
 monsters = pygame.sprite.Group()
-monster1, monster2 = flyingMonster(64, 455), flyingMonster(128, 455)
-monsters.add(monster1, monster2)
+monsters.add(flyingMonster(64, 455), flyingMonster(128, 455), flyingMonster(430, 300),
+            flyingMonster(865, 302), flyingMonster(1258, 77), flyingMonster(1555, 78),
+            flyingMonster(1488, 462), flyingMonster(2800, 132), flyingMonster(2021, 398),
+            flyingMonster(1880, 132), flyingMonster(2800, 398), flyingMonster(1880, 132),
+            flyingMonster(3370, 232), flyingMonster(2955, 132))
 
 
 # main loop that keeps game running
@@ -327,6 +333,9 @@ while keepWindow:
     # loads the scorebar
     scoreBar = font.render(str(score), False, "white")
     screen.blit(scoreBar, (580, 10))
+
+
+    print(pygame.mouse.get_pos())
 
 
     # update the display
