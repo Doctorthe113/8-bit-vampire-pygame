@@ -1,6 +1,7 @@
-#Hello there!
+# Hello there!
 This is my first ever completed game. I made it with pygame.
-##To play:
+
+## To play:
 1. Get python on your machine and then run `pip install pygame`
 2. Open a terminal in the main directory and run `python game.py` or `python3 game.py`.
 
