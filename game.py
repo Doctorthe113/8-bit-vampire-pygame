@@ -1,6 +1,8 @@
 from math import ceil, floor
 from time import sleep
-import pygame
+import contextlib
+with contextlib.redirect_stdout(None):
+    import pygame
 
 width = 640
 height = 480
@@ -155,10 +157,6 @@ class player:
             self.hitRect = playerHitSprite.get_rect(topleft=((self.Rect.x), (self.Rect.y)))
             screen.blit(playerHitSprite, self.Rect)
 
-        print(self.jumping)
-        print(self.Rect.x, self.Rect.y)
-        pygame.draw.rect(screen, (255, 255, 255), self.Rect, 2)
-
     def attacked(self):
         self.health -= 0.0625
         if (self.health == 0):
@@ -256,7 +254,6 @@ class bgWithColision(pygame.sprite.Sprite):
     def update(self):
         for tiles in self.tileRects:
             tiles.x -= playerObj.dx
-            pygame.draw.rect(screen, "white", tiles, 2)
 
         self.Rect.x -= playerObj.dx
         # screen.blit(self.BGImage, self.Rect)
@@ -334,8 +331,6 @@ while keepWindow:
     scoreBar = font.render(str(score), False, "white")
     screen.blit(scoreBar, (580, 10))
 
-
-    print(pygame.mouse.get_pos())
 
 
     # update the display
